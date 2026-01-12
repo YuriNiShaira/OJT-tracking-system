@@ -1,0 +1,59 @@
+# =====================
+# General
+# =====================
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+
+# =====================
+# Python / Django
+# =====================
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+*.db
+
+# Django media & static (adjust if needed)
+media/
+staticfiles/
+
+# Django secrets
+local_settings.py
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# =====================
+# Node / React
+# =====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+build/
+dist/
+
+# Vite / CRA cache
+.vite/
+.cache/
+
+# =====================
+# IDE / Editor
+# =====================
+.vscode/
+.idea/
+*.swp
+
+# =====================
+# OS-specific
+# =====================
+.DS_Store
+Thumbs.db
