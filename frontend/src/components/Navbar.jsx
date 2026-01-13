@@ -1,69 +1,130 @@
 import React from 'react'
 import {
   Box, Flex, Heading, Button, Avatar, Menu, MenuButton,
-  MenuList, MenuItem, Text, useToast
+  MenuList, MenuItem, Text, IconButton, HStack
 } from '@chakra-ui/react'
-import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
+import { FiBell, FiMenu, FiChevronDown } from 'react-icons/fi'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
-const Navbar = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate()
-    const toast = useToast()
+const Navbar = ({ onToggleSidebar }) => {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
-    const handleLogout = async () => {
-        await logout()
-        toast({
-            title: 'Logged out successfully',
-            status: 'info',
-            duration: 3000
-        })
-        navigate('/login')
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
+  }
+
+  const getUserName = () => {
+    if (user?.first_name && user?.last_name) {
+      return `${user.first_name} ${user.last_name}`
     }
-    
-    const getRoleBadgeColor = (role) => {
-        switch(role){
-            case 'student': return 'green'
-            case 'company': return 'blue'
-            case 'admin': return 'orange'
-            default: return 'gray'
-        }
+    return user?.username || 'User'
+  }
+
+  const getRoleLabel = () => {
+    switch (user?.role) {
+      case 'student': return 'Student'
+      case 'company': return 'Company'
+      case 'admin': return 'Admin'
+      default: return ''
     }
+  }
 
-    return (
-        <Box bg='white' px={6} py={4} boxShadow='sm' borderBottom='1px' borderColor='gray.200'>
-            <Flex justifyContent='space-between' alignItems='center'>
-                <Flex alignItems="center">
-                    <Heading color='brand.yellow' cursor='pointer' onClick={() => navigate('/dashboard')}>
-                        OJTrack
-                    </Heading>
-                    <Text ml={4} color="gray.600" fontSize="sm">
-                        {user?.role === 'student' && 'Student Portal'}
-                        {user?.role === 'company' && 'Company Portal'}
-                        {user?.role === 'admin' && 'Admin Portal'}
-                    </Text>
-                </Flex>
+  return (
+    <Box
+      position="Flex"
+      top={0}
+      left={0}
+      right={0}
+      bg="white"
+      boxShadow="sm"
+      borderBottom="1px"
+      borderColor="gray.200"
+      zIndex={20}
+      px={{ base: 4, md: 6 }}
+      py={3}
+    >
+      <Flex justifyContent="space-between" alignItems="center">
+        {/* Left side - Logo and toggle */}
+        <HStack spacing={4}>
+          <IconButton
+            icon={<FiMenu />}
+            onClick={onToggleSidebar}
+            variant="ghost"
+            aria-label="Toggle sidebar"
+            display={{ base: 'flex', md: 'none' }}
+          />
+          
+          <Heading
+            color="brand.yellow"
+            cursor="pointer"
+            onClick={() => navigate('/dashboard')}
+            size="lg"
+            fontSize={{ base: 'xl', md: '2xl' }}
+          >
+            OJTrack
+          </Heading>
+          
+          <Text
+            display={{ base: 'none', md: 'block' }}
+            color="gray.600"
+            fontSize="sm"
+            fontWeight="medium"
+          >
+            {getRoleLabel()} Portal
+          </Text>
+        </HStack>
 
-                <Flex alignItems="center">
-                    <Menu>
-                        <MenuButton as={Button} rightIcon={<ChevronRightIcon />} variant='ghost'>
-                            <Flex alignItems='center'>
-                                <Avatar size='sm' name={user?.first_name + ' ' + user?.last_name} mr={2} />
-                                <Text>{user?.first_name || user?.username}</Text>
-                            </Flex>
-                        </MenuButton>
-                        <MenuList>
-                            <MenuItem onClick={() => navigate('/dashboard')}>Dashboard</MenuItem>
-                            <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
-                            <MenuItem onClick={handleLogout} color="red.500">Logout</MenuItem>
-                        </MenuList>
-                    </Menu>
-                </Flex>
-            </Flex>
-        </Box>
-    )
-
+        {/* Right side - User menu and notifications */}
+        <HStack spacing={4}>
+          <IconButton
+            icon={<FiBell />}
+            variant="ghost"
+            aria-label="Notifications"
+            rounded="full"
+          />
+          
+          <Menu>
+            <MenuButton
+              as={Button}
+              rightIcon={<FiChevronDown />}
+              variant="ghost"
+              leftIcon={
+                <Avatar
+                  size="sm"
+                  name={getUserName()}
+                  bg="yellow.500"
+                  color="white"
+                />
+              }
+            >
+              <Box display={{ base: 'none', md: 'block' }}>
+                <Text fontSize="sm" fontWeight="medium">
+                  {getUserName()}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  {getRoleLabel()}
+                </Text>
+              </Box>
+            </MenuButton>
+            <MenuList>
+              <MenuItem onClick={() => navigate('/profile')}>
+                My Profile
+              </MenuItem>
+              <MenuItem onClick={() => navigate('/settings')}>
+                Settings
+              </MenuItem>
+              <MenuItem onClick={handleLogout} color="red.500">
+                Logout
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </HStack>
+      </Flex>
+    </Box>
+  )
 }
 
 export default Navbar

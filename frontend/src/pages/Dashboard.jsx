@@ -1,7 +1,7 @@
-// src/pages/Dashboard.jsx
 import React from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { Spinner, Center } from '@chakra-ui/react'
+import DashboardLayout from '../components/Layout/DashboardLayout'
 
 // Import role-specific dashboards
 import StudentDashboard from '../components/dashboards/StudentDashboard'
@@ -20,21 +20,24 @@ const Dashboard = () => {
   }
 
   // Render dashboard based on role
-  switch (user?.role) {
-    case 'student':
-      return <StudentDashboard />
-    case 'company':
-      return <CompanyDashboard />
-    case 'admin':
-      return <AdminDashboard />
-    default:
-      // Fallback or redirect to login
-      return (
-        <Center h="100vh">
-          <Spinner size="xl" />
-        </Center>
-      )
+  const renderDashboard = () => {
+    switch (user?.role) {
+      case 'student':
+        return <StudentDashboard />
+      case 'company':
+        return <CompanyDashboard />
+      case 'admin':
+        return <AdminDashboard />
+      default:
+        return (
+          <Center h="100vh">
+            <Spinner size="xl" />
+          </Center>
+        )
+    }
   }
+
+  return <DashboardLayout>{renderDashboard()}</DashboardLayout>
 }
 
 export default Dashboard
