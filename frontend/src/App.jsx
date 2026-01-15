@@ -11,7 +11,7 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Unauthorized from './pages/Unauthorized'
 import JobList from './components/ojt/JobList'
-import SideBar from './components/Layout/Sidebar'
+import CreateOJTForm from './components/ojt/CreateOJTForm'
 
 function App() {
   return (
@@ -23,20 +23,30 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
-            <Route path='/sidebar' element={<SideBar />} />
 
             {/* Protected routes */}
             <Route 
-              path="/dashboard" 
-              element={
+                path="/dashboard" 
+                element={
                 <ProtectedRoute>
-                  <Dashboard />
+                    <Dashboard />
                 </ProtectedRoute>
               } 
             />
 
             {/* OJT Listings (Public) */}
             <Route path="/ojt" element={<JobList />} />
+
+
+            {/* Company-only routes */}
+            <Route 
+              path="/ojt/create" 
+              element={
+                <ProtectedRoute roles={['company']}>
+                    <CreateOJTForm />
+                </ProtectedRoute>
+              } 
+            />
 
             {/* Default redirect */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

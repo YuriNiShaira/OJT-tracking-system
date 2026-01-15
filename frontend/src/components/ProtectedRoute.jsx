@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children, roles = [] }) => {
   if (loading) {
     return (
       <Center h="100vh">
-        <Spinner size="xl" />
+        <Spinner size="xl" color="yellow.500" />
       </Center>
     )
   }
