@@ -442,7 +442,7 @@ const CreateOJTForm = () => {
                             </CardBody>
                         </Card>
                         
-                                    {/* Section 4: Logistics */}
+                        {/* Section 4: Logistics */}
                         <Card>
                             <CardBody>
                                 <Heading size="md" mb={6} color="orange.600">
