@@ -126,7 +126,6 @@ const JobList = () => {
                 >
                     <option value="required">Required OJT</option>
                     <option value="elective">Elective</option>
-                    <option value="summer">Summer OJT</option>
                 </Select>
                 </HStack>
                 

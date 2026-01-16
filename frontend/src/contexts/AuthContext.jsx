@@ -39,13 +39,11 @@ export const AuthProvider = ({ children }) => {
         console.log("DEBUG - Sending registration data:", userData);
 
         try {
-            // Use a CLEAN axios instance without interceptors
             const cleanAxios = axios.create({
                 baseURL: 'http://localhost:8000/api',
                 withCredentials: true,
             });
             
-            // No Authorization header, no interceptors
             const response = await cleanAxios.post('/auth/register/', userData);
             
             console.log("DEBUG - Registration response:", response.data);
@@ -65,7 +63,6 @@ export const AuthProvider = ({ children }) => {
                 if (error.response.data.detail) {
                     errorMessage = error.response.data.detail;
                 } else if (typeof error.response.data === 'object') {
-                    // Handle serializer validation errors
                     errorMessage = Object.values(error.response.data)
                         .flat()
                         .join(' ');

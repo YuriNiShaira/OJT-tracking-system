@@ -13,6 +13,8 @@ import Unauthorized from './pages/Unauthorized'
 import JobList from './components/ojt/JobList'
 import CreateOJTForm from './components/ojt/CreateOJTForm'
 import OJTDetail from './components/ojt/OJTDetail'
+import ApplyForm from './components/ojt/ApplyForm'
+import ApplicationsList from './components/student/ApplicationList'
 
 function App() {
   return (
@@ -34,7 +36,28 @@ function App() {
                     <Dashboard />
                 </ProtectedRoute>
               } 
+              
             />
+            <Route 
+                path="/ojt/:id/apply" 
+                element={
+                    <ProtectedRoute roles={['student']}>
+                        <ApplyForm />
+                    </ProtectedRoute>
+                } 
+            />
+            <Route 
+                path="/student/applications"
+                element={
+                    <ProtectedRoute roles={['student']}>
+                        <ApplicationsList />
+                    </ProtectedRoute>
+                }
+            
+            
+            />
+
+
 
             {/* OJT Listings (Public) */}
             <Route path="/ojt" element={<JobList />} />

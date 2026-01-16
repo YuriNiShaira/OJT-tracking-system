@@ -10,7 +10,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { ojtService } from '../../services/ojtService'
 import { 
   FiCalendar, FiClock, FiMapPin, FiDollarSign,
-  FiBook, FiUsers, FiChevronLeft
+  FiBook, FiUsers, FiChevronLeft, FiCheck
 } from 'react-icons/fi'
 import api from '../../utils/api'
 
@@ -287,14 +287,15 @@ const OJTDetail = () => {
                 )}
                 
                 {user?.role === 'student' && (
-                  <Button
+                    <Button
                     colorScheme="yellow"
                     size="lg"
-                    onClick={handleApply}
+                    onClick={() => navigate(`/ojt/${job.id}/apply`)}
                     isDisabled={job.status !== 'open' || job.is_expired}
-                  >
+                    leftIcon={<FiCheck />}
+                    >
                     Apply Now
-                  </Button>
+                    </Button>
                 )}
                 
                 {!user && (

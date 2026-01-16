@@ -3,7 +3,6 @@ import { useAuth } from '../contexts/AuthContext'
 import { Spinner, Center } from '@chakra-ui/react'
 import DashboardLayout from '../components/Layout/DashboardLayout'
 
-// Import role-specific dashboards
 import StudentDashboard from '../components/dashboards/StudentDashboard'
 import CompanyDashboard from '../components/dashboards/CompanyDashboard'
 import AdminDashboard from '../components/dashboards/AdminDashboard'
