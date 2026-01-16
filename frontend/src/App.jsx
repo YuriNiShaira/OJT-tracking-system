@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard'
 import Unauthorized from './pages/Unauthorized'
 import JobList from './components/ojt/JobList'
 import CreateOJTForm from './components/ojt/CreateOJTForm'
+import OJTDetail from './components/ojt/OJTDetail'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/ojt/:id" element={<OJTDetail />} />
 
             {/* Protected routes */}
             <Route 

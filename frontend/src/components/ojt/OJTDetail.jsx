@@ -1,4 +1,3 @@
-// src/components/ojt/OJTDetail.jsx
 import React, { useState, useEffect } from 'react'
 import {
   Box, Container, Heading, Text, VStack, HStack,
@@ -13,110 +12,110 @@ import {
   FiCalendar, FiClock, FiMapPin, FiDollarSign,
   FiBook, FiUsers, FiChevronLeft
 } from 'react-icons/fi'
+import api from '../../utils/api'
 
 const OJTDetail = () => {
-  const { id } = useParams()
-  const { user } = useAuth()
-  const navigate = useNavigate()
-  const toast = useToast()
-  
-  const [loading, setLoading] = useState(true)
-  const [job, setJob] = useState(null)
-  const [error, setError] = useState('')
+    const { id } = useParams()
+    const { user } = useAuth()
+    const navigate = useNavigate()
+    const toast = useToast()
 
-  useEffect(() => {
-    fetchJobDetails()
-  }, [id])
+    const [loading, setLoading] = useState(true)
+    const [job, setJob] = useState(null)
+    const [error, setError] = useState('')
 
-  const fetchJobDetails = async () => {
-    try {
-      setLoading(true)
-      const data = await ojtService.getListing(id)
-      setJob(data)
-    } catch (err) {
-      setError('Failed to load OJT details')
-      console.error(err)
-    } finally {
-      setLoading(false)
+    useEffect(()=> {
+        fetchJobDetails()
+    }, [])
+
+    const fetchJobDetails = async() =>{
+        try{
+            setLoading(true)
+            const data = await ojtService.getListing(id)
+            setJob(data)
+        }catch(error){
+            setError('Failed to load OJT details')
+            console.error(err)
+        }finally{
+            setLoading(false)
+        }
     }
-  }
 
-  const handleApply = () => {
-    if (!user) {
-      navigate('/login', { state: { from: `/ojt/${id}` } })
-      return
+    const handleApply = () => {
+        if(!user){
+            navigate('login',{state: { from: `/ojt/${id}`}})
+            return
+        }
+
+        if(user.role !== 'student'){
+            toast({
+                title: 'Only Student can apply',
+                status: 'error',
+                duration: 3000,
+            })
+            return
+        }
+        navigate(`/ojt/${id}/apply`)
     }
-    
-    if (user.role !== 'student') {
-      toast({
-        title: 'Only students can apply',
-        status: 'warning',
-        duration: 3000,
-      })
-      return
+
+    const getBadgeColor = (status) => {
+        switch(status) {
+            case 'open' : return 'green'
+            case 'filled': return 'blue'
+            case 'closed': return 'red'
+            case 'ongoing': return 'purple'
+            default: return 'gray'
+        }
     }
-    
-    navigate(`/ojt/${id}/apply`)
-  }
 
-  const getBadgeColor = (status) => {
-    switch(status) {
-      case 'open': return 'green'
-      case 'filled': return 'blue'
-      case 'closed': return 'red'
-      case 'ongoing': return 'purple'
-      default: return 'gray'
+    const formatCurrency = (amount) => {
+        if (!amount || amount === '0.00') return 'No allowance'
+        return `₱${parseFloat(amount).toLocaleString('en-PH')}/month`
     }
-  }
 
-  const formatCurrency = (amount) => {
-    if (!amount || amount === '0.00') return 'No allowance'
-    return `₱${parseFloat(amount).toLocaleString('en-PH')}/month`
-  }
-
-  const getCourseName = (courseCode) => {
-    const courses = {
-      'cit': 'Information Technology',
-      'coa': 'Accountancy',
-      'coed': 'Education',
-      'chm': 'Hospitality Management',
-      'cba': 'Business Administration',
-      'all': 'All Courses'
+    const getCourseName = (courseCode) => {
+        const courses = {
+            'cit': 'Information Technology',
+            'coa': 'Accountancy',
+            'coed': 'Education',
+            'chm': 'Hospitality Management',
+            'cba': 'Business Administration',
+            'all': 'All Courses'
+        }
+        return courses[courseCode] || courseCode
     }
-    return courses[courseCode] || courseCode
-  }
 
-  if (loading) {
-    return (
-      <Container maxW="container.lg" py={8}>
-        <VStack spacing={8} align="stretch">
-          <Skeleton height="40px" />
-          <Skeleton height="300px" />
-        </VStack>
-      </Container>
-    )
-  }
+    if(loading){
+        return(
+            <Container maxW='container.lg' py={8}>
+                <VStack spacing={8} align='stretch' >
+                    <Skeleton height='40px' />
+                    <Skeleton  height='300px'/>
+                </VStack>
+            </Container>
+        )
+    }
 
-  if (error || !job) {
-    return (
-      <Container maxW="container.lg" py={8}>
-        <Alert status="error" borderRadius="lg">
-          <AlertIcon />
-          {error || 'OJT position not found'}
-        </Alert>
-        <Button
-          leftIcon={<FiChevronLeft />}
-          onClick={() => navigate('/ojt')}
-          mt={4}
-        >
-          Back to Listings
-        </Button>
-      </Container>
-    )
-  }
+    if(error || !job){
+        return(
+            <Container>
+                <Alert>
+                    <AlertIcon />
+                    {error || 'OJT positions not found'}
+                </Alert>
+                <Button
+                    leftIcon={<FiChevronLeft />}
+                    onClick={() => navigate('/ojt')}
+                    mt={4}
+                >
+                    Back to Listing
+                </Button>
+            </Container>
+        )
+    }
 
-  return (
-    <Container maxW="container.lg" py={8}>
+    return(
+        <Container maxW="container.lg" py={8}>
       <VStack spacing={8} align="stretch">
         {/* Back button */}
         <Button
@@ -313,7 +312,7 @@ const OJTDetail = () => {
         </Card>
       </VStack>
     </Container>
-  )
+    )
 }
 
 export default OJTDetail

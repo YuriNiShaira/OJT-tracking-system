@@ -26,7 +26,9 @@ class OJTListingListCreate(generics.ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == 'POST':
+            # For POST, require authentication and company role
             return [permissions.IsAuthenticated(), IsCompanyUser()]
+        # For GET, allow anyone
         return [permissions.AllowAny()]
     
     def get_queryset(self):
@@ -39,6 +41,7 @@ class OJTListingListCreate(generics.ListCreateAPIView):
         return queryset.order_by('-created_at')
     
     def perform_create(self, serializer):
+        print(f"DEBUG: Creating listing for user: {self.request.user.username}, role: {self.request.user.role}")
         serializer.save(company=self.request.user)
 
 class OJTListingDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -123,9 +126,9 @@ def company_dashboard_stats(request):
 def student_dashboard_stats(request):
     student = request.user
 
-    total_applications = OJTListing.objects.filter(student=student).count()
-    pending_applications = OJTListing.objects.filter(student = student, status='applied').count()
-    accepted_applications = OJTListing.objects.filter(student=student, status='accepted').count()
+    total_applications = Application.objects.filter(student=student).count()
+    pending_applications = Application.objects.filter(student=student, status='applied').count()
+    accepted_applications = Application.objects.filter(student=student, status='accepted').count()
 
     return Response({
         'total_applications': total_applications,

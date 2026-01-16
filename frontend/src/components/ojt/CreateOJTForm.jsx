@@ -1,3 +1,4 @@
+import axios from 'axios'
 import React, { useState } from 'react'
 import {
   Box, Container, Heading, VStack, HStack, Text,
@@ -14,6 +15,7 @@ import { ojtService } from '../../services/ojtService'
 import { FiSave, FiX, FiCalendar, FiClock, FiMapPin, FiDollarSign } from 'react-icons/fi'
 import Navbar from '../Navbar'
 import SideBar from '../Layout/Sidebar'
+import api from '../../utils/api'
 
 
 const CreateOJTForm = () => {
@@ -128,64 +130,78 @@ const CreateOJTForm = () => {
     }
 
 
-    const handleSubmit = async(e) => {
-        e.preventDefault()
-
-        if(!validateForm()){
-            toast({
-                title: 'Please fix errors',
-                status: 'error',
-                duration: 3000
-            })
-            return
+    const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!validateForm()) {
+        toast({
+        title: 'Please fix the errors',
+        status: 'error',
+        duration: 3000,
+        })
+        return
+    }
+  
+    setLoading(true)
+    
+    try {
+        // Prepare data for API
+        const submissionData = {
+        ...formData,
+        allowance: formData.allowance ? parseFloat(formData.allowance) : null,
         }
-        setLoading(true)
-
-        try{
-            // Prepare data for API
-            const submissionData = {
-                ...formData,
-                allowance: formData.allowance ? parseFloat(formData.allowance): null,
-            }
-            
-            await ojtService.createListing(submissionData)
-
-            toast({
-                title: 'OJT Position Created!',
-                description: 'Your OJT listing has been posted successfully.',
-                status: 'success',
-                duration: 5000,
-                isClosable: true,
-            })
-            
-            navigate('/company/listings')
-
-        }catch(error){
-            console.error('Error creating OJT:', error)
-
-            let errorMessage = 'Failed to create OJT listing'
-            if(error.response?.data){
-                // Handle backend validation errors
-                const backendErrors = error.response.data
-                const fieldErrors = {}
-
-                Object.keys(backendErrors).forEach(key => {
-                    fieldErrors[key] = Array.isArray(backendErrors[key]) 
-                        ? backendErrors[key].join(' ') 
-                        : backendErrors[key]
-                    })
-
-                    setErrors(fieldErrors)
-                    errorMessage = 'Please check the form for errors'
-            }
-            toast({
-                title: 'error message',
-                status: 'error',
-                duration: 3000
-            })
-        }finally{
-            setLoading(false)
+        
+        console.log('DEBUG: Sending OJT data:', submissionData)
+        
+        // TEMPORARY: Use a direct axios call to debug
+        const response = await axios.post('http://localhost:8000/api/listings/', submissionData, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json',
         }
+        })
+        
+        console.log('DEBUG: Create response:', response.data)
+        
+        toast({
+        title: 'OJT Position Created!',
+        description: 'Your OJT listing has been posted successfully.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+        })
+        
+        navigate('/company/listings')
+        
+    } catch (error) {
+        console.error('DEBUG: Full error:', error)
+        console.error('DEBUG: Error response:', error.response)
+        
+        let errorMessage = 'Failed to create OJT listing'
+        if (error.response?.data) {
+        console.log('DEBUG: Backend error data:', error.response.data)
+        
+        const backendErrors = error.response.data
+        const fieldErrors = {}
+        
+        Object.keys(backendErrors).forEach(key => {
+            fieldErrors[key] = Array.isArray(backendErrors[key]) 
+            ? backendErrors[key].join(' ') 
+            : backendErrors[key]
+        })
+        
+        setErrors(fieldErrors)
+        errorMessage = 'Please check the form for errors'
+        }
+        
+        toast({
+        title: errorMessage,
+        status: 'error',
+        duration: 5000,
+        })
+    } finally {
+        setLoading(false)
+    }
     }
 
     const handleCancel = () => {
@@ -294,155 +310,7 @@ const CreateOJTForm = () => {
                             </CardBody>
                         </Card>
 
-                        {/* Section 2: OJT Requirements */}
-                        <Card>
-                            <CardBody>
-                                <Heading size="md" mb={6} color="green.600">
-                                    <FiClock style={{ display: 'inline', marginRight: '8px' }} />
-                                    OJT Requirements
-                                </Heading>
-
-                                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                                    <FormControl isRequired>
-                                        <FormLabel>OJT Type</FormLabel>
-                                        <Select
-                                            name="ojt_type"
-                                            value={formData.ojt_type}
-                                            onChange={handleChange}
-                                        >
-                                            {ojtTypes.map(type => (
-                                                <option key={type.value} value={type.value}>
-                                                    {type.label}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                    
-                                    <FormControl>
-                                        <FormLabel>Required Hours</FormLabel>
-                                        <NumberInput
-                                            min={400}
-                                            max={600}
-                                            value={formData.required_hours}
-                                            onChange={(value) => handleNumberChange('required_hours', value)}
-                                            >
-                                            <NumberInputField />
-                                                <NumberInputStepper>
-                                                    <NumberIncrementStepper />
-                                                    <NumberDecrementStepper />
-                                                </NumberInputStepper>
-                                            </NumberInput>
-                                            <Text fontSize="sm" color="gray.500" mt={2}>
-                                            Typically 400-500 hours for required OJT
-                                            </Text>{errors.required_hours && <Text color="red.500" fontSize="sm">{errors.required_hours}</Text>}
-                                    </FormControl>
-
-                                    <FormControl isRequired isInvalid={errors.duration_weeks}>
-                                        <FormLabel>Duration (Weeks)</FormLabel>
-                                        <NumberInput
-                                            min={4}
-                                            max={26}
-                                            value={formData.duration_weeks}
-                                            onChange={(value) => handleNumberChange('duration_weeks', value)}
-                                            onBlur={updateEndDate}
-                                            >
-                                        <NumberInputField />
-                                            <NumberInputStepper>
-                                                <NumberIncrementStepper />
-                                                <NumberDecrementStepper />
-                                            </NumberInputStepper>
-                                        </NumberInput>
-                                        {errors.duration_weeks && <Text color="red.500" fontSize="sm">{errors.duration_weeks}</Text>}
-                                    </FormControl>
-
-                                    <FormControl isRequired>
-                                        <FormLabel>Work Setup</FormLabel>
-                                        <Select
-                                        name="work_setup"
-                                        value={formData.work_setup}
-                                        onChange={handleChange}
-                                        >
-                                        {workSetups.map(setup => (
-                                            <option key={setup.value} value={setup.value}>
-                                            {setup.label}
-                                            </option>
-                                        ))}
-                                        </Select>
-                                    </FormControl>
-
-                                    <GridItem colSpan={{ base: 1, md: 2 }}>
-                                        <FormControl isRequired isInvalid={errors.location}>
-                                        <FormLabel>Location</FormLabel>
-                                        <Input
-                                            name="location"
-                                            placeholder="Complete office address"
-                                            value={formData.location}
-                                            onChange={handleChange}
-                                        />
-                                        {errors.location && <Text color="red.500" fontSize="sm">{errors.location}</Text>}
-                                        </FormControl>
-                                    </GridItem>                                   
-                                </SimpleGrid>
-                            </CardBody>
-                        </Card>
-
-                        {/* Section 3: Student Requirements */}
-                        <Card>
-                            <CardBody>
-                                <Heading size="md" mb={6} color="purple.600">
-                                Student Requirements
-                                </Heading>
-                                
-                                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                                <FormControl>
-                                    <FormLabel>Course Requirement</FormLabel>
-                                    <Select
-                                    name="course_requirement"
-                                    value={formData.course_requirement}
-                                    onChange={handleChange}
-                                    >
-                                    {courses.map(course => (
-                                        <option key={course.value} value={course.value}>
-                                        {course.label}
-                                        </option>
-                                    ))}
-                                    </Select>
-                                </FormControl>
-
-                                <FormControl>
-                                    <FormLabel>Year Level Requirement</FormLabel>
-                                    <Select
-                                    name="year_level_requirement"
-                                    value={formData.year_level_requirement}
-                                    onChange={handleChange}
-                                    >
-                                    {yearLevels.map(level => (
-                                        <option key={level.value} value={level.value}>
-                                        {level.label}
-                                        </option>
-                                    ))}
-                                    </Select>
-                                </FormControl>
-                                    <GridItem colSpan={{ base: 1, md: 2 }}>
-                                        <FormControl>
-                                            <FormLabel>Skills Required (Optional)</FormLabel>
-                                            <Textarea
-                                                name="skills_required"
-                                                placeholder="List any specific skills or knowledge required"
-                                                value={formData.skills_required}
-                                                onChange={handleChange}
-                                                rows={2}
-                                            />
-                                            <Text fontSize="sm" color="gray.500" mt={2}>
-                                                Example: Basic programming, MS Office, Communication skills, Teamwork
-                                            </Text>
-                                        </FormControl>
-                                    </GridItem>
-                                </SimpleGrid>
-                            </CardBody>
-                        </Card>
-                        
-                        {/* Section 4: Logistics */}
+                        {/* Section 2: Logistics */}
                         <Card>
                             <CardBody>
                                 <Heading size="md" mb={6} color="orange.600">
@@ -540,6 +408,158 @@ const CreateOJTForm = () => {
                                 </SimpleGrid>
                             </CardBody>
                         </Card>
+
+
+                        {/* Section 3: Student Requirements */}
+                        <Card>
+                            <CardBody>
+                                <Heading size="md" mb={6} color="purple.600">
+                                Student Requirements
+                                </Heading>
+                                
+                                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                                <FormControl>
+                                    <FormLabel>Course Requirement</FormLabel>
+                                    <Select
+                                    name="course_requirement"
+                                    value={formData.course_requirement}
+                                    onChange={handleChange}
+                                    >
+                                    {courses.map(course => (
+                                        <option key={course.value} value={course.value}>
+                                        {course.label}
+                                        </option>
+                                    ))}
+                                    </Select>
+                                </FormControl>
+
+                                <FormControl>
+                                    <FormLabel>Year Level Requirement</FormLabel>
+                                    <Select
+                                        name="year_level_requirement"
+                                        value={formData.year_level_requirement}
+                                        onChange={handleChange}
+                                    >
+                                    {yearLevels.map(level => (
+                                        <option key={level.value} value={level.value}>
+                                        {level.label}
+                                        </option>
+                                    ))}
+                                    </Select>
+                                </FormControl>
+                                    <GridItem colSpan={{ base: 1, md: 2 }}>
+                                        <FormControl>
+                                            <FormLabel>Skills Required (Optional)</FormLabel>
+                                            <Textarea
+                                                name="skills_required"
+                                                placeholder="List any specific skills or knowledge required"
+                                                value={formData.skills_required}
+                                                onChange={handleChange}
+                                                rows={2}
+                                            />
+                                            <Text fontSize="sm" color="gray.500" mt={2}>
+                                                Example: Basic programming, MS Office, Communication skills, Teamwork
+                                            </Text>
+                                        </FormControl>
+                                    </GridItem>
+                                </SimpleGrid>
+                            </CardBody>
+                        </Card>
+
+
+                        {/* Section 4: OJT Requirements */}
+                        <Card>
+                            <CardBody>
+                                <Heading size="md" mb={6} color="green.600">
+                                    <FiClock style={{ display: 'inline', marginRight: '8px' }} />
+                                    OJT Requirements
+                                </Heading>
+
+                                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                                    <FormControl isRequired>
+                                        <FormLabel>OJT Type</FormLabel>
+                                        <Select
+                                            name="ojt_type"
+                                            value={formData.ojt_type}
+                                            onChange={handleChange}
+                                        >
+                                            {ojtTypes.map(type => (
+                                                <option key={type.value} value={type.value}>
+                                                    {type.label}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                    
+                                    <FormControl>
+                                        <FormLabel>Required Hours</FormLabel>
+                                        <NumberInput
+                                            min={400}
+                                            max={600}
+                                            value={formData.required_hours}
+                                            onChange={(value) => handleNumberChange('required_hours', value)}
+                                            >
+                                            <NumberInputField />
+                                                <NumberInputStepper>
+                                                    <NumberIncrementStepper />
+                                                    <NumberDecrementStepper />
+                                                </NumberInputStepper>
+                                            </NumberInput>
+                                            <Text fontSize="sm" color="gray.500" mt={2}>
+                                            Typically 400-500 hours for required OJT
+                                            </Text>{errors.required_hours && <Text color="red.500" fontSize="sm">{errors.required_hours}</Text>}
+                                    </FormControl>
+
+                                    <FormControl isRequired isInvalid={errors.duration_weeks}>
+                                        <FormLabel>Duration (Weeks)</FormLabel>
+                                        <NumberInput
+                                            min={4}
+                                            max={26}
+                                            value={formData.duration_weeks}
+                                            onChange={(value) => handleNumberChange('duration_weeks', value)}
+                                            onBlur={updateEndDate}
+                                            >
+                                        <NumberInputField />
+                                            <NumberInputStepper>
+                                                <NumberIncrementStepper />
+                                                <NumberDecrementStepper />
+                                            </NumberInputStepper>
+                                        </NumberInput>
+                                        {errors.duration_weeks && <Text color="red.500" fontSize="sm">{errors.duration_weeks}</Text>}
+                                    </FormControl>
+
+                                    <FormControl isRequired>
+                                        <FormLabel>Work Setup</FormLabel>
+                                        <Select
+                                        name="work_setup"
+                                        value={formData.work_setup}
+                                        onChange={handleChange}
+                                        >
+                                        {workSetups.map(setup => (
+                                            <option key={setup.value} value={setup.value}>
+                                            {setup.label}
+                                            </option>
+                                        ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <GridItem colSpan={{ base: 1, md: 2 }}>
+                                        <FormControl isRequired isInvalid={errors.location}>
+                                        <FormLabel>Location</FormLabel>
+                                        <Input
+                                            name="location"
+                                            placeholder="Complete office address"
+                                            value={formData.location}
+                                            onChange={handleChange}
+                                        />
+                                        {errors.location && <Text color="red.500" fontSize="sm">{errors.location}</Text>}
+                                        </FormControl>
+                                    </GridItem>                                   
+                                </SimpleGrid>
+                            </CardBody>
+                        </Card>
+
+                        
 
                             {/* Form Actions */}
                             <Card>
