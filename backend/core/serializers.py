@@ -51,8 +51,8 @@ class OJTListingSerializer(serializers.ModelSerializer):
         return data
     
 class ApplicationSerializer(serializers.ModelSerializer):
-    student_details = UserProfileSerializer(source = 'student', read_only= True)
-    listing_details = OJTListingSerializer(source = 'listing', read_only = True)
+    student_details = UserProfileSerializer(source='student', read_only=True)
+    listing_details = OJTListingSerializer(source='listing', read_only=True)
     can_withdraw = serializers.SerializerMethodField()
 
     class Meta:
@@ -68,29 +68,73 @@ class ApplicationSerializer(serializers.ModelSerializer):
     def get_can_withdraw(self, obj):
         return obj.status in ['applied', 'under_review', 'for_interview']
     
-    def validate(self,data):
-        user = self.context['request'].user
+    def validate(self, data):
+        request = self.context['request']
+        user = request.user
 
+        # Only students can apply or withdraw
         if user.role != 'student':
-            raise serializers.ValidationError('Only student can apply')
-        
-        listing = data.get('listing') or self.instance.listing if self.instance else None
-        if listing:
-            # Check if already applied
-            if Application.objects.filter(student = user, listing=listing).exists():
-                raise serializers.ValidationError("You have already applied for this position.")
-            
-            # Check course requirement
-            if(listing.course_requirement != 'all' and listing.course_requirement != user.course):
-                raise serializers.ValidationError(f"This OJT is for {listing.get_course_requirement_display()} students only.")
-            
-            if(listing.year_level_requirement > 0 and user.year_level < listing.year_level_requirement):
-                raise serializers.ValidationError(f"Minimum year level required: {listing.get_year_level_requirement_display()}")
-            
-            if listing.application_deadline < date.today():
-                raise serializers.ValidationError('Application deadline has passed')
-            
+            raise serializers.ValidationError('Only students can apply for OJT positions.')
+
+        # ✅ If PATCH, skip apply validations
+        if request.method in ['PATCH', 'PUT']:
+            return data
+
+        # ===== APPLY VALIDATIONS (POST only) =====
+        listing = data.get('listing')
+
+        if not listing:
+            raise serializers.ValidationError({'listing': 'OJT position is required.'})
+
+        if Application.objects.filter(
+            student=user,
+            listing=listing,
+            status__in=['applied', 'under_review', 'for_interview']
+        ).exists():
+            raise serializers.ValidationError(
+                {'detail': 'You already have an active application for this position.'}
+            )
+
+        if listing.course_requirement != 'all' and listing.course_requirement != user.course:
+            raise serializers.ValidationError(
+                {'course': f'This OJT is for {listing.get_course_requirement_display()} students only.'}
+            )
+
+        if listing.year_level_requirement > 0 and user.year_level < listing.year_level_requirement:
+            raise serializers.ValidationError(
+                {'year_level': f'Minimum year level required: {listing.get_year_level_requirement_display()}'}
+            )
+
+        if listing.application_deadline < date.today():
+            raise serializers.ValidationError(
+                {'deadline': 'Application deadline has passed.'}
+            )
+
         return data
+
+    
+    def create(self, validated_data):
+        user = self.context['request'].user
+        listing = validated_data['listing']
+
+        # Check for withdrawn/rejected application
+        existing = Application.objects.filter(
+            student=user,
+            listing=listing,
+            status__in=['withdrawn', 'rejected']
+        ).first()
+
+        if existing:
+            # Re-activate application
+            existing.status = 'applied'
+            existing.cover_letter = validated_data.get('cover_letter', existing.cover_letter)
+            existing.resume = validated_data.get('resume', existing.resume)
+            existing.save()
+            return existing
+
+        # Normal create
+        validated_data['student'] = user
+        return super().create(validated_data)
 
 class ApplicationStatusSerializer(serializers.ModelSerializer):
     """Serializer for companies to update application status"""
