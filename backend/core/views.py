@@ -6,6 +6,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
 from .models import OJTListing, Application
 from .serializers import OJTListingSerializer, ApplicationSerializer, ApplicationStatusSerializer
 from datetime import date
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+
 # Create your views here.
 
 class IsCompanyUser(permissions.BasePermission):
@@ -67,7 +69,7 @@ class OJTListingDetail(generics.RetrieveUpdateDestroyAPIView):
 # Application Views
 class ApplicationListCreate(generics.ListCreateAPIView):
     serializer_class = ApplicationSerializer
-
+    
     def get_permissions(self):
         if self.request.method == 'POST':
             return [permissions.IsAuthenticated(), IsStudentUser()]
@@ -79,11 +81,12 @@ class ApplicationListCreate(generics.ListCreateAPIView):
         if user.role == 'student':
             return Application.objects.filter(student=user).order_by('-applied_at')
         elif user.role == 'company':
-            return Application.objects.filter(listing__company = user).order_by('-applied_at')
+            return Application.objects.filter(listing__company=user).order_by('-applied_at')
         return Application.objects.none()
     
     def perform_create(self, serializer):
-        serializer.save(student=self.request.user)
+        # The student will be set in the serializer's create method
+        serializer.save()
 
 class ApplicationDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ApplicationSerializer
