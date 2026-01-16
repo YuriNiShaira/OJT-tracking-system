@@ -117,7 +117,7 @@ class Application(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     # Company response fields
-    interview = models.DateTimeField(null=True, blank=True)
+    interview_date = models.DateTimeField(null=True, blank=True)
     interview_notes = models.TextField(blank=True)
     final_feedback = models.TextField(blank=True)
 
