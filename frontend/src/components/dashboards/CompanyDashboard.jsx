@@ -116,20 +116,20 @@ const CompanyDashboard = () => {
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
             {quickActions.map((action, index) => (
                 <Card
-                key={index} 
-                variant="outline" 
-                _hover={{ transform: 'translateY(-4px)', shadow: 'md' }}
-                transition="all 0.2s"
-                cursor="pointer"
-                onClick={() => navigate(action.path)}
-                >
+                    key={index} 
+                    variant="outline" 
+                    _hover={{ transform: 'translateY(-4px)', shadow: 'md' }}
+                    transition="all 0.2s"
+                    cursor="pointer"
+                    onClick={() => navigate(action.path)}
+                    >
                     <CardBody>
                         <VStack align="center" spacing={4}>
                             <Box
-                            p={3}
-                            borderRadius="lg"
-                            bg={`${action.color}.100`}
-                            color={`${action.color}.600`}
+                                p={3}
+                                borderRadius="lg"
+                                bg={`${action.color}.100`}
+                                color={`${action.color}.600`}
                                 >
                                 <Icon as={action.icon} boxSize={6} />
                             </Box>
