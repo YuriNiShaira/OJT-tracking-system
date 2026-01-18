@@ -15,6 +15,7 @@ import CreateOJTForm from './components/ojt/CreateOJTForm'
 import OJTDetail from './components/ojt/OJTDetail'
 import ApplyForm from './components/ojt/ApplyForm'
 import ApplicationsList from './components/student/ApplicationList'
+import CompanyApplications from './components/company/CompanyApplications'
 
 function App() {
   return (
@@ -53,8 +54,6 @@ function App() {
                         <ApplicationsList />
                     </ProtectedRoute>
                 }
-            
-            
             />
 
 
@@ -71,6 +70,15 @@ function App() {
                     <CreateOJTForm />
                 </ProtectedRoute>
               } 
+            />
+
+            <Route 
+                path='/company/applications'
+                element={
+                    <ProtectedRoute roles={['company']}>
+                        <CompanyApplications />
+                    </ProtectedRoute>
+              }
             />
 
             {/* Default redirect */}
