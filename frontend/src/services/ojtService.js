@@ -3,9 +3,9 @@ import api from "../utils/api";
 export const ojtService = {
     // Get all OJT listings
     getAllListings: async (filters = {}) => {
-        const params = new URLSearchParams(filters).toString();
-        const response = await api.get(`/listings/${params ? `?${params}` : ""}`);
-        return response.data;
+        const params = new URLSearchParams(filters).toString()
+        const response = await api.get(`/listings/${params ? `?${params}` : ''}`)
+        return response.data
     },
 
     // Get single listing
@@ -49,8 +49,8 @@ export const ojtService = {
 
     // Get company's listings
     getMyListings: async () => {
-        const response = await api.get(`/listings/`);
-        return response.data;
+        const response = await api.get('/company/listings/')
+        return response.data
     },
 
     // Update application status (Company only)

@@ -2,9 +2,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # OJT Listings
+    # Public listings (anyone can view active listings)
     path('listings/', views.OJTListingListCreate.as_view(), name='listings-list'),
     path('listings/<int:pk>/', views.OJTListingDetail.as_view(), name='listings-detail'),
+    
+    # Company's own listings (protected)
+    path('company/listings/', views.CompanyListingsList.as_view(), name='company-listings'),
     
     # Applications
     path('applications/', views.ApplicationListCreate.as_view(), name='applications-list'),

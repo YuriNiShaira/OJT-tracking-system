@@ -18,7 +18,6 @@ class IsStudentUser(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role == 'student'
     
-# OJT Listing Views
 class OJTListingListCreate(generics.ListCreateAPIView):
     serializer_class = OJTListingSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -28,23 +27,35 @@ class OJTListingListCreate(generics.ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == 'POST':
-            # For POST, require authentication and company role
             return [permissions.IsAuthenticated(), IsCompanyUser()]
-        # For GET, allow anyone
         return [permissions.AllowAny()]
     
     def get_queryset(self):
         queryset = OJTListing.objects.all()
 
-        # For non-authenticated or non-company users, show only active listings
-        if not self.request.user.is_authenticated or self.request.user.role != 'company':
+        user = self.request.user
+
+        if user.is_authenticated and user.role == 'company':
+            queryset = queryset.filter(company=user)
+        else:
             queryset = queryset.filter(status='open')
 
         return queryset.order_by('-created_at')
     
     def perform_create(self, serializer):
-        print(f"DEBUG: Creating listing for user: {self.request.user.username}, role: {self.request.user.role}")
-        serializer.save(company=self.request.user)
+        serializer.save(company = self.request.user)
+
+
+class CompanyListingsList(generics.ListAPIView):
+    serializer_class = OJTListingSerializer
+    permission_classes = [permissions.IsAuthenticated, IsCompanyUser]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['status']
+    search_fields = ['title', 'description']
+
+    def get_queryset(self):
+        return OJTListing.objects.filter(company=self.request.user).order_by('-created_at')
+
 
 class OJTListingDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = OJTListing.objects.all()
@@ -52,41 +63,45 @@ class OJTListingDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            return [permissions.IsAuthenticated(), IsCompanyUser()]
-        return [permissions.AllowAny()]
+            return [permissions.IsAuthenticated, IsCompanyUser()]
+        return [permissions.AllowAny]
+    
+    def get_object(self):
+        obj = super().get_object()
+
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            if obj.company != self.request.user:
+                raise permissions.PermissionDenied("You can only edit your own listings.")
+            
+        return obj
     
     def perform_update(self, serializer):
-        if self.request.user != serializer.instance.company:
-            raise permissions.PermissionDenied("You can only edit your own listings.")
         serializer.save()
 
     def perform_destroy(self, instance):
-        if self.request.user != instance.company:
-            raise permissions.PermissionDenied("You can only delete your own listings.")
         instance.delete()
 
 
-# Application Views
 class ApplicationListCreate(generics.ListCreateAPIView):
     serializer_class = ApplicationSerializer
-    
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
     def get_permissions(self):
         if self.request.method == 'POST':
-            return [permissions.IsAuthenticated(), IsStudentUser()]
+            return [permissions.IsAuthenticated, IsStudentUser]
         return [permissions.IsAuthenticated()]
     
     def get_queryset(self):
         user = self.request.user
 
         if user.role == 'student':
-            return Application.objects.filter(student=user).order_by('-applied_at')
+            return Application.objects.filter(student = user).order_by('-applied_at')
         elif user.role == 'company':
             return Application.objects.filter(listing__company=user).order_by('-applied_at')
         return Application.objects.none()
     
     def perform_create(self, serializer):
-        # The student will be set in the serializer's create method
-        serializer.save()
+        serializer.save(student = self.request.user)
 
 class ApplicationDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ApplicationSerializer
@@ -106,7 +121,7 @@ class ApplicationDetail(generics.RetrieveUpdateDestroyAPIView):
                 return ApplicationStatusSerializer
             return ApplicationSerializer
         
-# Dashboard Stats Views
+
 @api_view(['GET'])
 @permission_classes([IsCompanyUser])
 def company_dashboard_stats(request):
