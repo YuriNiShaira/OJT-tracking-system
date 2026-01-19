@@ -16,6 +16,8 @@ import OJTDetail from './components/ojt/OJTDetail'
 import ApplyForm from './components/ojt/ApplyForm'
 import ApplicationsList from './components/student/ApplicationList'
 import CompanyApplications from './components/company/CompanyApplications'
+import CompanyListings from './components/company/CompanyListings'
+import EditListing from './components/company/EditListing'
 
 function App() {
   return (
@@ -73,12 +75,30 @@ function App() {
             />
 
             <Route 
+              path='/company/listings'
+              element={
+                <ProtectedRoute roles={['company']}>
+                  <CompanyListings />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route 
                 path='/company/applications'
                 element={
                     <ProtectedRoute roles={['company']}>
                         <CompanyApplications />
                     </ProtectedRoute>
               }
+            />
+
+            <Route 
+              path="/company/listings/:id/edit" 
+              element={
+                <ProtectedRoute roles={['company']}>
+                  <EditListing />
+                </ProtectedRoute>
+              } 
             />
 
             {/* Default redirect */}
