@@ -60,5 +60,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'role', 'first_name', 'last_name', 
                   'phone', 'profile_image', 'is_verified', 'student_id', 'course', 
-                  'year_level', 'company_name', 'company_address', 'company_description']
-        read_only_fields = ['id', 'username', 'role', 'is_verified']
+                  'year_level', 'company_name', 'company_address', 'company_description',
+                  'bio', 'date_joined']
+        read_only_fields = ['id', 'username', 'role', 'is_verified', 'date_joined']
+    
+    def validate_email(self, value):
+        user = self.instance
+        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError("This email is already in use.")
+        return value
