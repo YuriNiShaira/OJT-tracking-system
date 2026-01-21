@@ -13,6 +13,7 @@ class User(AbstractUser):
     phone = models.IntegerField(max_length=15, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     is_verified = models.BooleanField(default=False)
+    bio = models.TextField(blank=True, null=True)
 
     #student field
     COURSE_CHOICES = (
