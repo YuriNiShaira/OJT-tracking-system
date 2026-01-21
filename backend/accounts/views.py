@@ -131,3 +131,21 @@ def check_auth(request):
 def get_profile(request):
     serializer = UserProfileSerializer(request.user)
     return Response(serializer.data)
+
+@api_view(['GET', 'PATCH'])
+@permission_classes([permissions.IsAuthenticated])
+def update_profile(request):
+    user = request.user
+
+    if request.method == 'POST':
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data)
+    elif request.method == 'PATCH':
+        serializer = UserProfileSerializer(user, data = request.data, partial=True)
+        if serializer.is_valid():
+            if 'profile_image' in request.FILES:
+                user.profile_image = request.FILES['profile_image']
+
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
