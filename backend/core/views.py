@@ -64,7 +64,7 @@ class OJTListingDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
             return [permissions.IsAuthenticated, IsCompanyUser()]
-        return [permissions.AllowAny]
+        return [permissions.AllowAny()]
     
     def get_object(self):
         obj = super().get_object()
@@ -153,3 +153,4 @@ def student_dashboard_stats(request):
         'pending_applications': pending_applications,
         'accepted_applications': accepted_applications,
     })
+
