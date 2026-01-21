@@ -8,4 +8,5 @@ urlpatterns = [
     path('refresh/', views.refresh_token, name='refresh_token'),
     path('check-auth/', views.check_auth, name='check_auth'),
     path('profile/', views.get_profile, name='get_profile'),
+    path('profile/', views.update_profile, name='update_profile'),
 ]
