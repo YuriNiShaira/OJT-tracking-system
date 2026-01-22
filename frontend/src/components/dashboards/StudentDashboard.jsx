@@ -15,6 +15,26 @@ const StudentDashboard = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
 
+
+  const calculateProfileCompletion = () => {
+  const fields = [
+    user?.first_name,
+    user?.last_name,
+    user?.email,
+    user?.phone,
+    user?.student_id,
+    user?.course,
+    user?.year_level,
+    user?.bio,
+    user?.profile_image,
+  ]
+  
+  const completed = fields.filter(field => field && field.toString().trim() !== '').length
+  return Math.round((completed / fields.length) * 100)
+  }
+
+const profileCompletion = calculateProfileCompletion()
+
   const getCourseName = (courseCode) => {
     const courses = {
       'cit': 'Information Technology',
