@@ -1,7 +1,8 @@
 from rest_framework import status, permissions
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth import authenticate
 from .models import User
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserProfileSerializer
@@ -134,10 +135,11 @@ def get_profile(request):
 
 @api_view(['GET', 'PATCH'])
 @permission_classes([permissions.IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def update_profile(request):
     user = request.user
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         serializer = UserProfileSerializer(user)
         return Response(serializer.data)
     elif request.method == 'PATCH':
