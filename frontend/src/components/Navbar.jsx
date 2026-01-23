@@ -64,7 +64,7 @@ const Navbar = ({ onToggleSidebar }) => {
             size="lg"
             fontSize={{ base: 'xl', md: '2xl' }}
           >
-            OJTrack
+            OJT Finder
           </Heading>
           
           <Text
