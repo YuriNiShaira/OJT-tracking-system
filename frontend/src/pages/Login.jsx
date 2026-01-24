@@ -52,7 +52,7 @@ const Login = () => {
       >
         <VStack spacing={6} align="center">
           <Box textAlign="center">
-            <Heading size="xl" color="yellow" mb={2}>OJTrack</Heading>
+            <Heading size="xl" color="yellow" mb={2}>OJT Finder</Heading>
             <Heading size="md" color="gray.600">Internship Portal</Heading>
           </Box>
           
