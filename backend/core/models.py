@@ -128,3 +128,37 @@ class Application(models.Model):
     def __str__(self):
         return f"{self.student.username} - {self.listing.title}"
     
+
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ('application_submitted', 'Application Submitted'),
+        ('application_status_changed', 'Application Status Changed'),
+        ('interview_scheduled', 'Interview Scheduled'),
+        ('new_application', 'New Application Received'),
+        ('listing_closed', 'OJT Listing Closed'),
+        ('deadline_reminder', 'Deadline Reminder'),
+        ('system_announcement', 'System Announcement'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    data = models.JSONField(default=dict, blank=True)
+    is_read = models.BooleanField(default=False)
+    is_email_sent = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+        def __str__(self):
+            return f'{self.user.username} - {self.title}'
+        
+        def mark_as_read(self):
+            self.is_read = True
+            self.save()
+
+        def mark_email_sent(self):
+            self.is_email_sent = True
+            self.save()
