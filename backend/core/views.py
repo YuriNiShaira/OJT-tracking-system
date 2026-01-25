@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
-from .models import OJTListing, Application
-from .serializers import OJTListingSerializer, ApplicationSerializer, ApplicationStatusSerializer
+from .models import OJTListing, Application, Notification
+from .serializers import OJTListingSerializer, ApplicationSerializer, ApplicationStatusSerializer, NotificationSerializer
 from datetime import date
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
@@ -154,3 +154,45 @@ def student_dashboard_stats(request):
         'accepted_applications': accepted_applications,
     })
 
+
+class NotificationList(generics.ListAPIView):
+    """Get user's notifications"""
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def mark_notification_read(request, pk):
+    """Mark a notification as read"""
+    try:
+        notification = Notification.objects.get(pk=pk, user=request.user)
+        notification.mark_as_read()
+        return Response({'success': True})
+    except Notification.DoesNotExist:
+        return Response({'error': 'Notification not found'}, status=404)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def mark_all_notifications_read(request):
+    """Mark all notifications as read"""
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return Response({'success': True})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def notification_stats(request):
+    """Get notification statistics"""
+    notifications = Notification.objects.filter(user=request.user)
+    unread_count = notifications.filter(is_read=False).count()
+    total_count = notifications.count()
+    
+    return Response({
+        'unread_count': unread_count,
+        'total_count': total_count,
+    })
