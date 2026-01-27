@@ -63,7 +63,7 @@ class OJTListingDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            return [permissions.IsAuthenticated, IsCompanyUser()]
+            return [permissions.IsAuthenticated(), IsCompanyUser()]
         return [permissions.AllowAny()]
     
     def get_object(self):
@@ -88,7 +88,7 @@ class ApplicationListCreate(generics.ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == 'POST':
-            return [permissions.IsAuthenticated, IsStudentUser]
+            return [permissions.IsAuthenticated(), IsStudentUser()]
         return [permissions.IsAuthenticated()]
     
     def get_queryset(self):
