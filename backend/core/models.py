@@ -152,13 +152,13 @@ class Notification(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-        def __str__(self):
+    def __str__(self):
             return f'{self.user.username} - {self.title}'
         
-        def mark_as_read(self):
+    def mark_as_read(self):
             self.is_read = True
             self.save()
 
-        def mark_email_sent(self):
+    def mark_email_sent(self):
             self.is_email_sent = True
             self.save()
