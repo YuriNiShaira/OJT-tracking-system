@@ -18,6 +18,9 @@ import ApplicationsList from './components/student/ApplicationList'
 import CompanyApplications from './components/company/CompanyApplications'
 import CompanyListings from './components/company/CompanyListings'
 import EditListing from './components/company/EditListing'
+import EditProfile from './components/profile/EditProfile'
+import MyProfile from './components/profile/MyProfile'
+import NotificationsPage from './components/notifications/NotificationsPage'
 
 function App() {
   return (
@@ -56,6 +59,33 @@ function App() {
                         <ApplicationsList />
                     </ProtectedRoute>
                 }
+            />
+
+            <Route 
+              path='/profile'
+              element={
+                <ProtectedRoute>
+                  <MyProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route 
+              path="/profile/edit" 
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/notifications" 
+              element={
+                <ProtectedRoute>
+                  <NotificationsPage />
+                </ProtectedRoute>
+              } 
             />
 
 
