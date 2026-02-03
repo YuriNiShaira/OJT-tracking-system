@@ -6,7 +6,7 @@ import {
 import {
   FiHome, FiBriefcase, FiUsers, FiFileText, FiSettings,
   FiCalendar, FiUser, FiDollarSign, FiMenu, FiChevronLeft,
-  FiChevronRight, FiLayers
+  FiChevronRight, FiLayers, FiBell
 } from 'react-icons/fi'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -24,6 +24,7 @@ const SideBar = ({ isOpen, onToggle }) => {
         { label: 'My Applications', icon: FiFileText, path: '/student/applications' },
         { label: 'Schedule', icon: FiCalendar, path: '/student/schedule' },
         { label: 'Profile', icon: FiUser, path: '/profile' },
+        { label: 'Notifications', icon: FiBell, path: '/notifications' },
     ]
 
 
@@ -33,7 +34,8 @@ const SideBar = ({ isOpen, onToggle }) => {
         { label: 'My Listings', icon: FiLayers, path: '/company/listings' },
         { label: 'Applications', icon: FiFileText, path: '/company/applications' },
         { label: 'Schedule', icon: FiCalendar, path: '/company/schedule' },
-        { label: 'Company Profile', icon: FiUsers, path: '/company/profile' },
+        { label: 'Company Profile', icon: FiUsers, path: '/profile' },
+        { label: 'Notifications', icon: FiBell, path: '/notifications' },
     ]
 
 
@@ -44,6 +46,7 @@ const SideBar = ({ isOpen, onToggle }) => {
         { label: 'Applications', icon: FiFileText, path: '/admin/applications' },
         { label: 'Reports', icon: FiDollarSign, path: '/admin/reports' },
         { label: 'Settings', icon: FiSettings, path: '/admin/settings' },
+        { label: 'Notifications', icon: FiBell, path: '/notifications' },
     ]
 
     const getNavItems = () => {
