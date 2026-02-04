@@ -14,6 +14,7 @@ import {
   FiChevronRight, FiClock, FiCheckCircle, FiXCircle,
   FiEye, FiFileText, FiCalendar, FiMoreVertical
 } from 'react-icons/fi'
+import Navbar from '../Navbar'
 
 const ApplicationsList = () => {
   const { user } = useAuth()
