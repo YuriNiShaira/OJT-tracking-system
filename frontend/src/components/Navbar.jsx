@@ -6,6 +6,7 @@ import {
 import { FiBell, FiMenu, FiChevronDown } from 'react-icons/fi'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import NotificationsDropdown from './notifications/NotificationsDropdown'
 
 const Navbar = ({ onToggleSidebar }) => {
   const { user, logout } = useAuth()
@@ -34,7 +35,7 @@ const Navbar = ({ onToggleSidebar }) => {
 
   return (
     <Box
-      position="Flex"
+      position="sticky"
       top={0}
       left={0}
       right={0}
@@ -79,12 +80,7 @@ const Navbar = ({ onToggleSidebar }) => {
 
         {/* Right side - User menu and notifications */}
         <HStack spacing={4}>
-          <IconButton
-            icon={<FiBell />}
-            variant="ghost"
-            aria-label="Notifications"
-            rounded="full"
-          />
+          <NotificationsDropdown />
           
           <Menu>
             <MenuButton
