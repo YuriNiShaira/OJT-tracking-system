@@ -59,14 +59,6 @@ const Register = () => {
       cleanedData.company_name = null
       cleanedData.company_address = null
       cleanedData.company_description = null
-    } else if (cleanedData.role === 'admin') {
-      // Admin users might have different fields or none of these
-      cleanedData.student_id = null
-      cleanedData.course = null
-      cleanedData.year_level = null
-      cleanedData.company_name = null
-      cleanedData.company_address = null
-      cleanedData.company_description = null
     }
     
     Object.keys(cleanedData).forEach(key => {
@@ -205,7 +197,7 @@ const Register = () => {
 
                 <form onSubmit={handleSubmit}>
                   <VStack spacing={4}>
-                    {/* Account Type - Now including Admin */}
+                    {/* Account Type - Admin removed */}
                     <FormControl isRequired isInvalid={errors.role}>
                       <FormLabel color="gray.700" fontWeight="medium" mb={2}>
                         Account Type
@@ -230,14 +222,6 @@ const Register = () => {
                             _checked={{ bg: 'green.500', borderColor: 'green.500' }}
                           >
                             Company
-                          </Radio>
-                          <Radio 
-                            value="admin" 
-                            colorScheme="green"
-                            borderColor="gray.300"
-                            _checked={{ bg: 'green.500', borderColor: 'green.500' }}
-                          >
-                            Admin
                           </Radio>
                         </Stack>
                       </RadioGroup>
@@ -542,22 +526,7 @@ const Register = () => {
                       </>
                     )}
 
-                    {/* Admin Fields - Minimal or none */}
-                    {formData.role === 'admin' && (
-                      <Alert 
-                        status="info" 
-                        borderRadius="md" 
-                        fontSize="sm"
-                        bg="blue.50"
-                        border="1px"
-                        borderColor="blue.200"
-                      >
-                        <AlertIcon />
-                        Admin accounts may require additional verification after registration.
-                      </Alert>
-                    )}
-
-                    {/* Password Fields - Fixed: Confirm password below */}
+                    {/* Password Fields */}
                     <FormControl isRequired isInvalid={errors.password}>
                       <FormLabel color="gray.700" fontSize="sm" fontWeight="medium">
                         Password
